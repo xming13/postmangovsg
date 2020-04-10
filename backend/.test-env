@@ -1,1 +1,2 @@
 DB_URI=postgres://localhost:5432/postmangovsgtest
+SESSION_SECRET='secret'
