@@ -8,6 +8,16 @@ async function sleep(ms: number): Promise<void> {
   })
 }
 
+export async function createCampaign(name: string, type: ChannelType): Promise<Campaign> {
+  return Promise.resolve(new SMSCampaign({
+    id: 1,
+    name: name,
+    type: type,
+    createdAt: Date.now(),
+    status: Status.Draft,
+  }))
+}
+
 export async function getCampaigns(): Promise<Array<Campaign>> {
   const campaigns: Array<Campaign> = [
     {
