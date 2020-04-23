@@ -19,7 +19,7 @@ const EmailRecipients = ({ id, csvFilename: initialCsvFilename, numRecipients: i
   const [messagePreview, setMessagePreview] = useState('')
 
   const params: { id?: string } = useParams()
-  const { showTopToast } = useContext(ToastContext)
+  const { showBottomToast } = useContext(ToastContext)
 
   async function uploadFile(files: File[]) {
     setIsUploading(true)
@@ -61,9 +61,9 @@ const EmailRecipients = ({ id, csvFilename: initialCsvFilename, numRecipients: i
       const axiosError: AxiosResponse = err.response
       if (axiosError !== undefined) {
         if (axiosError.status === 400) {
-          showTopToast(axiosError?.data?.message)
+          showBottomToast(axiosError?.data?.message)
         } else {
-          showTopToast('Error uploading file.')
+          showBottomToast('Error uploading file.')
         }
         console.error(axiosError)
       } else {

@@ -1,36 +1,31 @@
 @import 'styles/_variables';
 @import 'styles/_mixins';
 
-.bottom {
-  @include block($light-red, $red);
-  margin: 3rem;;
+.toast {
   position: fixed;
   opacity: 1;
-  transition: all 0.7s;
-  bottom: -300px;
-  left: 0;
+  width: $toast-width;
+  transition: all 0.5s ease-out;
+  transform: none;
+  z-index: 10000;
+  margin: 0;
+  box-shadow: $red;
 
-  &.enter {
-    bottom: 0;
-    left: 0;
+  &.bottom {
+    left: calc((100vw - #{$toast-width}) / 2);
+    bottom: -10rem;
+
+    &.show {
+      bottom: 2rem;
+    }
   }
-}
 
-.top {
-  @include block($light-red, $red);
-  margin-top: 12rem;
-  margin-right: 3rem;
-  position: fixed;
-  right: -300px;
-  opacity: 1;
-  transition: all 0.7s;
-  top: 0;
+  &.top {
+    right: 2rem;
+    top: -10rem;
 
-  &.enter {
-    right: 0;
+    &.show {
+      top: 3rem;
+    }
   }
-}
-
-.fade {
-  opacity: 0;
 }

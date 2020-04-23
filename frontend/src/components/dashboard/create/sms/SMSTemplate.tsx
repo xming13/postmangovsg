@@ -1,21 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 
 import { TextArea, PrimaryButton } from 'components/common'
 import { useParams } from 'react-router-dom'
 import { saveTemplate } from 'services/sms.service'
+import { ToastContext } from 'contexts/toast.context'
 
 const SMSTemplate = ({ body: initialBody, onNext }: { body: string; onNext: (changes: any, next?: boolean) => void }) => {
 
+  const { showBottomToast } = useContext(ToastContext)
   const [body, setBody] = useState(initialBody)
-  const params: {id?: string} = useParams()
+  const params: { id?: string } = useParams()
 
   async function handleSaveTemplate(): Promise<void> {
     try {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       await saveTemplate(+params.id!, body)
       onNext({ body })
-    } catch(err){
-      console.error(err)
+    } catch (err) {
+      showBottomToast('Error saving')
     }
   }
 
@@ -30,7 +32,7 @@ const SMSTemplate = ({ body: initialBody, onNext }: { body: string; onNext: (cha
         Note: Recipient is a required column in the csv file.
       </p>
       <p>
-        Example<br/>
+        Example<br />
         Reminder: Dear {'{{ recipient }}'}, your next appointment at {'{{ clinic }}'} is on {'{{ date }}'}
         at {'{{ time }}'}.
       </p>

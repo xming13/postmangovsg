@@ -44,8 +44,8 @@ export async function getPresignedUrl({
   campaignId,
   mimeType,
 }: {
-  campaignId: number
-  mimeType: string
+  campaignId: number;
+  mimeType: string;
 }): Promise<PresignedUrlResponse> {
   return axios
     .get(`/campaign/${campaignId}/sms/upload/start`, {
@@ -60,8 +60,8 @@ export async function completeFileUpload({
   campaignId,
   transactionId,
 }: {
-  campaignId: number
-  transactionId: string
+  campaignId: number;
+  transactionId: string;
 }): Promise<UploadCompleteResponse> {
   return axios
     .post(`/campaign/${campaignId}/sms/upload/complete`, {

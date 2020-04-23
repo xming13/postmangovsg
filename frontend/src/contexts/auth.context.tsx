@@ -2,10 +2,10 @@ import React, { createContext, useState, useEffect, SetStateAction, Dispatch } f
 import { getIsLoggedIn } from 'services/auth.service'
 
 interface ContextProps {
- isAuthenticated: boolean;
- setAuthenticated: Dispatch<SetStateAction<boolean>>;
- email: string;
- setEmail: Dispatch<SetStateAction<string>>;
+  isAuthenticated: boolean;
+  setAuthenticated: Dispatch<SetStateAction<boolean>>;
+  email: string;
+  setEmail: Dispatch<SetStateAction<string>>;
 }
 
 export const AuthContext = createContext({} as ContextProps)
@@ -19,7 +19,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const isLoggedIn = await getIsLoggedIn()
       setAuthenticated(isLoggedIn)
-    } catch(err){
+    } catch (err) {
       // is unauthorized
     }
     setLoaded(true)
