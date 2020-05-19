@@ -29,7 +29,7 @@ export default class TwilioClient {
           to: this.addDefaultCountryCode(recipient),
           body: this.replaceNewLines(message),
           from: this.messagingServiceSid,
-          statusCallback: callbackUrl,
+          statusCallback: callbackUrl.toString(),
         })
       })
       .then((result: { [key: string]: string }) => {
