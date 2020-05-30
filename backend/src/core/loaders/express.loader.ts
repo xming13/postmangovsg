@@ -34,6 +34,9 @@ const loggerMiddleware = morgan(config.get('MORGAN_LOG_FORMAT'), {
 const expressApp = ({ app }: { app: express.Application }): void => {
   app.use(loggerMiddleware)
 
+  // For incoming SNS post requests
+  app.use(express.text())
+
   app.use(bodyParser.json())
   // ref: https://expressjs.com/en/resources/middleware/cors.html#configuration-options
   // Default CORS setting:
