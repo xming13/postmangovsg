@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import axios from 'axios'
 import crypto from 'crypto'
+import url from 'url'
 import logger from '@core/logger'
 
 const signablekeysForSubscription = [
@@ -67,6 +68,8 @@ const verifySignature = async (req: Request, messageType: string): Promise<void>
 const getCert = async (req: Request): Promise<string> => {
   const { 'SigningCertURL' : certUrl } = req.body
 
+  if (!isUrlValid(certUrl)) throw new Error(`Cert url is not valid. certUrl=${certUrl}`)
+
   const certRequest = await axios.get(certUrl, {timeout: REQUEST_TIMEOUT})
 
   if (certRequest.status !== 200) throw new Error(`Unable to fetch signing certificate from AWS url. certUrl=${certUrl}`)
@@ -88,6 +91,16 @@ const isSignatureValid = (req: Request, cert: string, messageType: string): bool
   }
 
   return verifier.verify(cert, req.body['Signature'], 'base64')
+}
+
+const isUrlValid = (urlToValidate: string): boolean => {
+  const awsUrlPattern = /^sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?$/
+
+  const parsed = url.parse(urlToValidate)
+
+  return parsed.protocol === 'https:'
+    && parsed?.path?.substr(-4) === '.pem'
+    && awsUrlPattern.test(parsed?.host || '')
 }
 
 // SWTODO: Think of a better naming
