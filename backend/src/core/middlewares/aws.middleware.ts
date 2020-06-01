@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response } from 'express'
 import axios from 'axios'
 import crypto from 'crypto'
 import logger from '@core/logger'
@@ -23,6 +23,10 @@ const signableKeysForNotification = [
   'Type'
 ]
 
+const REQUEST_TIMEOUT = 3000
+
+//SWTODO: JOI validation
+
 // SWTODO: Update documentation
 /**
  *  Create a campaign
@@ -30,32 +34,40 @@ const signableKeysForNotification = [
  * @param res 
  * @param next 
  */
-const handleSnsSuccess = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
-  try {
+const handleSnsSuccess = async (req: Request, res: Response): Promise<Response | void> => {
     const { 'x-amz-sns-message-type': messageType } = req.headers
     
     if (messageType !== 'SubscriptionConfirmation' && messageType !== 'Notification') {
-      return res.status(400).json({ error: 'message type wrong' })
+      logger.error(`Wrong message type for request coming from SNS. messageType=${messageType}`)
+      return res.sendStatus(400)
     }
 
-    const cert = await getCert(req)
-
-    if (!isSignatureValid(req, cert, messageType)) {
-      logger.info('Generated signature is different from the one in request. Either request is not from AWS or it has been tampered with.')
-      return res.status(400).json({ error: 'Signature is invalid.' })
+    try {
+      await verifySignature(req, messageType)
+    } catch(err) {
+      logger.error(err)
+      return res.sendStatus(400)
     }
 
-    return res.status(201).json({ msg: 'hi gotten the cert' })
+    return res.sendStatus(201)
   }
-  catch (err) {
-    return next(err)
+
+const verifySignature = async (req: Request, messageType: string): Promise<void> => {
+  const { 'SignatureVersion': signatureVersion }  = req.body
+
+  if (signatureVersion !== '1') throw new Error(`Signature version is not supported. signatureVersion=${signatureVersion}`) 
+
+  const cert = await getCert(req)
+
+  if (!isSignatureValid(req, cert, messageType)) {
+    throw new Error('Generated signature is different from the one in request. Either request is not from AWS or it has been tampered with.')
   }
 }
 
 const getCert = async (req: Request): Promise<string> => {
   const { 'SigningCertURL' : certUrl } = req.body
 
-  const certRequest = await axios.get(certUrl, {timeout: 3000})
+  const certRequest = await axios.get(certUrl, {timeout: REQUEST_TIMEOUT})
 
   if (certRequest.status !== 200) throw new Error(`Unable to fetch signing certificate from AWS url. certUrl=${certUrl}`)
 
