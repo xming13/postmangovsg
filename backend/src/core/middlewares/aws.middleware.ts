@@ -44,11 +44,13 @@ const handleSnsSuccess = async (req: Request, res: Response): Promise<Response |
     }
 
     try {
-      await verifySignature(req, messageType)
+      const message = JSON.parse(req.body)
+      await verifySignature(message, messageType)
       if (messageType === 'SubscriptionConfirmation') {
-        await confirmSubscription(req)
+        await confirmSubscription(message)
       }
       else {
+        console.log(req.body)
       }
     } catch(err) {
       logger.error(err)
@@ -65,14 +67,14 @@ const handleSnsSuccess = async (req: Request, res: Response): Promise<Response |
  * @param req 
  * @param messageType The type of message SNS is sending, signature's content depends on the type.
  */
-const verifySignature = async (req: Request, messageType: string): Promise<void> => {
-  const { 'SignatureVersion': signatureVersion }  = req.body
+const verifySignature = async (message: any, messageType: string): Promise<void> => {
+  const { 'SignatureVersion': signatureVersion } = message
 
-  if (signatureVersion !== '1') throw new Error(`Signature version is not supported. signatureVersion=${signatureVersion}`) 
+  if (signatureVersion !== "1") throw new Error(`Signature version is not supported. signatureVersion=${signatureVersion}`) 
 
-  const cert = await getCert(req)
+  const cert = await getCert(message)
 
-  if (!isSignatureValid(req, cert, messageType)) {
+  if (!isSignatureValid(message, cert, messageType)) {
     throw new Error('Generated signature is different from the one in request. Either request is not from AWS or it has been tampered with.')
   }
 }
@@ -82,8 +84,8 @@ const verifySignature = async (req: Request, messageType: string): Promise<void>
  *  Subscription is successful when the status of request is 200.
  * @param req 
  */
-const confirmSubscription = async (req: Request): Promise<void> => {
-  const { 'SubscribeURL': subscribeUrl } = req.body
+const confirmSubscription = async (message: any): Promise<void> => {
+  const { 'SubscribeURL': subscribeUrl } = message
 
   if (!isUrlValid(subscribeUrl)) throw new Error(`Subscribe url is not valid. subscribeUrl=${subscribeUrl}`)
 
@@ -101,8 +103,8 @@ const confirmSubscription = async (req: Request): Promise<void> => {
  * @param req 
  * @returns The certificate
  */
-const getCert = async (req: Request): Promise<string> => {
-  const { 'SigningCertURL' : certUrl } = req.body
+const getCert = async (message: any): Promise<string> => {
+  const { 'SigningCertURL' : certUrl } = message
 
   if (!isUrlValid(certUrl) || certUrl.substr(-4) !== '.pem') throw new Error(`Cert url is not valid. certUrl=${certUrl}`)
 
@@ -121,20 +123,20 @@ const getCert = async (req: Request): Promise<string> => {
  * @param messageType
  * @returns Whether signature is valid
  */
-const isSignatureValid = (req: Request, cert: string, messageType: string): boolean => {
+const isSignatureValid = (message: any, cert: string, messageType: string): boolean => {
   const verifier = crypto.createVerify('RSA-SHA1')
 
   if (messageType === 'SubscriptionConfirmation') {
     signablekeysForSubscription.forEach(key => {
-      verifier.update(key + '\n' + req.body[key] + '\n', 'utf8')
+      verifier.update(key + '\n' + message[key] + '\n', 'utf8')
     })
   } else {
     signableKeysForNotification.forEach(key => {
-      verifier.update(key + '\n' + req.body[key] + '\n', 'utf8')
+      verifier.update(key + '\n' + message[key] + '\n', 'utf8')
     })
   }
 
-  return verifier.verify(cert, req.body['Signature'], 'base64')
+  return verifier.verify(cert, message['Signature'], 'base64')
 }
 
 /**
