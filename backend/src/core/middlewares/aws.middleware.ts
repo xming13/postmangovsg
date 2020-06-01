@@ -17,13 +17,10 @@ const signablekeysForSubscription = [
 const signableKeysForNotification = [
   'Message',
   'MessageId',
-  'Subject',
-  'SubscribeURL',
   'Timestamp',
   'TopicArn',
   'Type'
 ]
-
 const REQUEST_TIMEOUT = 3000
 
 //SWTODO: JOI validation
@@ -50,7 +47,7 @@ const handleSnsSuccess = async (req: Request, res: Response): Promise<Response |
         await confirmSubscription(message)
       }
       else {
-        console.log(req.body)
+        // await handleNotification(message)
       }
     } catch(err) {
       logger.error(err)
