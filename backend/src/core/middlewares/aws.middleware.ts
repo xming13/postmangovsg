@@ -58,6 +58,13 @@ const handleSnsSuccess = async (req: Request, res: Response): Promise<Response |
     return res.sendStatus(201)
   }
 
+/**
+ *  Verifies that the request is legitimate by recreating signature and comparing to the one in request body.
+ *  Supports AWS signature version 1.
+ *  Gets the signing certificate from the url provided in the request body.
+ * @param req 
+ * @param messageType The type of message SNS is sending, signature's content depends on the type.
+ */
 const verifySignature = async (req: Request, messageType: string): Promise<void> => {
   const { 'SignatureVersion': signatureVersion }  = req.body
 
@@ -88,6 +95,12 @@ const confirmSubscription = async (req: Request): Promise<void> => {
   }
 }
 
+/**
+ *  Get signing certificate from url that is in the request body.
+ *  Before making a get request, the url is validated to ensure that it is to SNS.
+ * @param req 
+ * @returns The certificate
+ */
 const getCert = async (req: Request): Promise<string> => {
   const { 'SigningCertURL' : certUrl } = req.body
 
@@ -100,6 +113,14 @@ const getCert = async (req: Request): Promise<string> => {
   return certRequest.data
 }
 
+/**
+ *  Recreates the signature of the request and verifies with the one provided in request body.
+ *  The keys to sign are different, depending on what the message type is.
+ * @param req 
+ * @param cert signing certificate
+ * @param messageType
+ * @returns Whether signature is valid
+ */
 const isSignatureValid = (req: Request, cert: string, messageType: string): boolean => {
   const verifier = crypto.createVerify('RSA-SHA1')
 
@@ -116,6 +137,11 @@ const isSignatureValid = (req: Request, cert: string, messageType: string): bool
   return verifier.verify(cert, req.body['Signature'], 'base64')
 }
 
+/**
+ *  Validates the url to ensure that it is coming from SNS.
+ * @param urlToValidate
+ * @returns Whether url is valid
+ */
 const isUrlValid = (urlToValidate: string): boolean => {
   const awsUrlPattern = /^sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?$/
 
