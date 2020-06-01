@@ -45,6 +45,11 @@ const handleSnsSuccess = async (req: Request, res: Response): Promise<Response |
 
     try {
       await verifySignature(req, messageType)
+      if (messageType === 'SubscriptionConfirmation') {
+        await confirmSubscription(req)
+      }
+      else {
+      }
     } catch(err) {
       logger.error(err)
       return res.sendStatus(400)
@@ -65,12 +70,30 @@ const verifySignature = async (req: Request, messageType: string): Promise<void>
   }
 }
 
+/**
+ *  Confirms a SNS subscription by visiting the subscribe url provided in the request body.
+ *  Subscription is successful when the status of request is 200.
+ * @param req 
+ */
+const confirmSubscription = async (req: Request): Promise<void> => {
+  const { 'SubscribeURL': subscribeUrl } = req.body
+
+  if (!isUrlValid(subscribeUrl)) throw new Error(`Subscribe url is not valid. subscribeUrl=${subscribeUrl}`)
+
+  try {
+    await axios.get(subscribeUrl, { timeout: REQUEST_TIMEOUT })
+  }
+  catch (err) {
+    throw new Error(`Unable to confirm subscription. subscribeUrl=${subscribeUrl}`)
+  }
+}
+
 const getCert = async (req: Request): Promise<string> => {
   const { 'SigningCertURL' : certUrl } = req.body
 
-  if (!isUrlValid(certUrl)) throw new Error(`Cert url is not valid. certUrl=${certUrl}`)
+  if (!isUrlValid(certUrl) || certUrl.substr(-4) !== '.pem') throw new Error(`Cert url is not valid. certUrl=${certUrl}`)
 
-  const certRequest = await axios.get(certUrl, {timeout: REQUEST_TIMEOUT})
+  const certRequest = await axios.get(certUrl, { timeout: REQUEST_TIMEOUT })
 
   if (certRequest.status !== 200) throw new Error(`Unable to fetch signing certificate from AWS url. certUrl=${certUrl}`)
 
@@ -99,7 +122,6 @@ const isUrlValid = (urlToValidate: string): boolean => {
   const parsed = url.parse(urlToValidate)
 
   return parsed.protocol === 'https:'
-    && parsed?.path?.substr(-4) === '.pem'
     && awsUrlPattern.test(parsed?.host || '')
 }
 
