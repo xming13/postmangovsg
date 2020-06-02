@@ -185,6 +185,8 @@ const handleSnsSuccess = async (
   }
 
   try {
+    logger.info(req.headers)
+    logger.info(req.body)
     const message = JSON.parse(req.body)
     await verifySignature(message, messageType)
     if (messageType === 'SubscriptionConfirmation') {
