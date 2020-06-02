@@ -75,11 +75,11 @@ const router = Router()
  *                  type: string
  *                  format: date-time
  *                 type:
- *                  $ref: '#/components/schemas/ChannelType'   
+ *                  $ref: '#/components/schemas/ChannelType'
  *        "401":
  *           description: Unauthorized
  *        "500":
- *           description: Internal Server Error              
+ *           description: Internal Server Error
  */
 router.post('/success', AWSMiddleware.handleSnsSuccess)
 
