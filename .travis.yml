@@ -5,6 +5,9 @@ node_js:
 services:
   - docker
 
+# Skip the automatic npm ci step  
+install: skip
+
 cache:
   directories:
     - backend/node_modules
@@ -87,9 +90,10 @@ jobs:
           timeout: 30
           publish: true
           zip: "../log-twilio-callback/code.zip"
-          environment_variables:
+          environment:
             - TWILIO_CALLBACK_SECRET=$STAGING_TWILIO_CALLBACK_SECRET
             - DB_URI=$STAGING_DB_URI
+            - NODE_ENV=production
           on:
             branch: $STAGING_BRANCH
         - provider: lambda
