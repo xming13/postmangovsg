@@ -65,7 +65,11 @@ const listCampaigns = ({
     include: [
       {
         model: JobQueue,
-        attributes: ['status', ['created_at', 'sent_at'], ['updated_at', 'status_updated_at']],
+        attributes: [
+          'status',
+          ['created_at', 'sent_at'],
+          ['updated_at', 'status_updated_at'],
+        ],
       },
     ],
   }
