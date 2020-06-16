@@ -1,7 +1,11 @@
-import { fn, cast, Transaction, Op, QueryTypes } from 'sequelize'
+import { fn, cast, Transaction, QueryTypes } from 'sequelize'
 import sequelizeLoader from '../loaders/sequelize.loader'
 import { Statistic, JobQueue } from '@core/models'
-import { CampaignStats, CampaignStatsCount, CampaignInvalidRecipient } from '@core/interfaces'
+import {
+  CampaignStats,
+  CampaignStatsCount,
+  CampaignInvalidRecipient,
+} from '@core/interfaces'
 
 /**
  * Helper method to get precomputed number of errored , sent, and unsent from statistic table.
@@ -153,5 +157,5 @@ export const StatsService = {
   getCurrentStats,
   getTotalSentCount,
   setNumRecipients,
-  getInvalidRecipients
+  getInvalidRecipients,
 }
