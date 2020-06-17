@@ -7,8 +7,8 @@ import App from './App'
 Sentry.init({
   dsn: SENTRY_DSN,
   release: SENTRY_RELEASE,
-  environment: SENTRY_ENVIRONMENT,
 })
+Sentry.setTag('environment', SENTRY_ENVIRONMENT)
 
 ReactDOM.render(
   <React.StrictMode>

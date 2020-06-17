@@ -20,7 +20,6 @@ const missingEnvVars = [
   'REACT_APP_REPORT_BUG_URL',
   'REACT_APP_SENTRY_DSN',
   'REACT_APP_SENTRY_RELEASE',
-  'REACT_APP_SENTRY_ENVIRONMENT',
 ].reduce(function (acc: string[], name: string) {
   if (process.env[name] === undefined) acc.push(name)
   return acc
