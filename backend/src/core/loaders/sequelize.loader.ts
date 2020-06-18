@@ -36,6 +36,9 @@ const sequelizeLoader = async (): Promise<void> => {
       write: parseDbUri(DB_URI),
     },
     dialectOptions,
+    query: {
+      useMaster: true,
+    },
   } as SequelizeOptions
 
   const sequelize = new Sequelize(options)
