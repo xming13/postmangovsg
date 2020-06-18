@@ -1,5 +1,5 @@
 import { Sequelize, SequelizeOptions } from 'sequelize-typescript'
-import { parse } from 'pg-connection-string'
+import { parseDbUri } from '@core/utils'
 
 import config from '@core/config'
 import {
@@ -22,21 +22,23 @@ import logger from '@core/logger'
 
 const DB_URI = config.get('database.databaseUri')
 const DB_READ_REPLICA_URI = config.get('database.databaseReadReplicaUri')
-
 const sequelizeLoader = async (): Promise<void> => {
   const dialectOptions = config.get('IS_PROD')
     ? config.get('database.dialectOptions')
     : {}
-  const sequelize = new Sequelize({
+
+  const options: SequelizeOptions = {
     dialect: 'postgres',
     logging: false,
     pool: config.get('database.poolOptions'),
     replication: {
-      read: [parse(DB_READ_REPLICA_URI)],
-      write: parse(DB_URI),
+      read: [parseDbUri(DB_READ_REPLICA_URI)],
+      write: parseDbUri(DB_URI),
     },
     dialectOptions,
-  } as SequelizeOptions)
+  } as SequelizeOptions
+
+  const sequelize = new Sequelize(options)
 
   const coreModels = [
     Credential,
