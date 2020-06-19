@@ -14,7 +14,7 @@ import { MessageStatus } from '@core/constants'
 const getStatsFromArchive = async (
   campaignId: number
 ): Promise<CampaignStatsCount> => {
-  const stats = await Statistic.findByPk(campaignId, { useMaster: true })
+  const stats = await Statistic.findByPk(campaignId)
   if (!stats) {
     return {
       error: 0,
@@ -75,7 +75,6 @@ const getStatsFromTable = async (
       [fn('sum', cast({ status: null }, 'int')), 'unsent'],
       [fn('sum', cast({ status: 'INVALID_RECIPIENT' }, 'int')), 'invalid'],
     ],
-    useMaster: true,
   })
 
   return {
@@ -96,7 +95,7 @@ const getCurrentStats = async (
   opsTable: any
 ): Promise<CampaignStats> => {
   // Get job from job_queue table
-  const job = await JobQueue.findOne({ where: { campaignId }, useMaster: true })
+  const job = await JobQueue.findOne({ where: { campaignId } })
   if (job == null)
     throw new Error('Unable to find campaign in job queue table.')
 
@@ -150,6 +149,7 @@ const getFailedRecipients = async (
       },
     },
     attributes: ['recipient', 'status', 'error_code', 'message_id'],
+    useMaster: false,
   })
 
   return data

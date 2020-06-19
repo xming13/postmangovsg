@@ -9,7 +9,6 @@ import { Campaign, JobQueue } from '@core/models'
 const hasJobInProgress = (campaignId: number): Promise<JobQueue | null> => {
   return JobQueue.findOne({
     where: { campaignId, status: { [Op.not]: JobStatus.Logged } },
-    useMaster: true,
   })
 }
 
@@ -45,7 +44,6 @@ const listCampaigns = ({
     attributes: any
     order: any
     include: any
-    useMaster: boolean
     offset?: number
     limit?: number
   } = {
@@ -74,7 +72,6 @@ const listCampaigns = ({
         ],
       },
     ],
-    useMaster: true,
   }
   if (offset) {
     options.offset = +offset

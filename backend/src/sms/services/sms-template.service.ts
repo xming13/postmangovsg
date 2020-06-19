@@ -31,7 +31,6 @@ const upsertSmsTemplate = async ({
     if (
       (await SmsTemplate.findByPk(campaignId, {
         transaction,
-        useMaster: true,
       })) !== null
     ) {
       // .update is actually a bulkUpdate
@@ -152,7 +151,6 @@ const storeTemplate = async ({
 
   const firstRecord = await SmsMessage.findOne({
     where: { campaignId },
-    useMaster: true,
   })
 
   // if recipients list has been uploaded before, have to check if updatedTemplate still matches list
@@ -168,7 +166,7 @@ const storeTemplate = async ({
   }
 
   const numRecipients = await SmsMessage.count({ where: { campaignId } })
-  const campaign = await Campaign.findByPk(+campaignId, { useMaster: true })
+  const campaign = await Campaign.findByPk(+campaignId)
   return { updatedTemplate, numRecipients, valid: campaign?.valid }
 }
 
@@ -181,7 +179,6 @@ const getFilledTemplate = async (
 ): Promise<SmsTemplate | null> => {
   const smsTemplate = await SmsTemplate.findOne({
     where: { campaignId },
-    useMaster: true,
   })
   if (!smsTemplate?.body || !smsTemplate.params) {
     return null
