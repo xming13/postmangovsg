@@ -18,15 +18,19 @@ const ProgressDetails = ({
   handlePause: () => Promise<void>
   handleRetry: () => Promise<void>
 }) => {
-  const { status, error, unsent, sent, invalid } = stats
+  const { status, error, unsent, sent, invalid, halted } = stats
   const [isSent, setIsSent] = useState(status === Status.Sent)
   const [isComplete, setIsComplete] = useState(!error && !unsent)
+  const [isHalted, setIsHalted] = useState(halted)
   useEffect(() => {
     setIsComplete(!error && !unsent)
     setIsSent(status === Status.Sent)
-  }, [status, error, unsent])
+    setIsHalted(halted)
+  }, [status, error, unsent, halted])
 
   function renderButton() {
+    if (isHalted) return null
+
     if (!isSent) {
       return (
         <PrimaryButton className={styles.pause} onClick={handlePause}>
@@ -43,7 +47,23 @@ const ProgressDetails = ({
         </PrimaryButton>
       )
     }
+
     return null
+  }
+
+  function renderStateMessage() {
+    if (isHalted) {
+      return (
+        <>
+          <h2>Halted</h2>
+          <span>Too many of your emails bounced. Contact us for details</span>
+        </>
+      )
+    }
+    if (isComplete) {
+      return <h2>Sending completed</h2>
+    }
+    return <h2>Progress</h2>
   }
 
   return (
@@ -70,7 +90,7 @@ const ProgressDetails = ({
         </table>
 
         <div className={styles.progressTitle}>
-          <h2>{isComplete ? 'Sending completed' : 'Progress'}</h2>
+          {renderStateMessage()}
           {renderButton()}
         </div>
         <ProgressBar
