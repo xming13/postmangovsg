@@ -72,4 +72,12 @@
     @include button($turquoise-green);
     pointer-events: none;
   }
+
+  .progressMessage {
+    @include flex-horizontal;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    width: 100%;
+  }
 }

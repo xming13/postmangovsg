@@ -51,19 +51,22 @@ const ProgressDetails = ({
     return null
   }
 
-  function renderStateMessage() {
+  function renderProgressTitle() {
+    let progressMessage = null
     if (isHalted) {
-      return (
+      progressMessage = (
         <>
           <h2>Halted</h2>
           <span>Too many of your emails bounced. Contact us for details</span>
         </>
       )
+    } else if (isComplete) {
+      progressMessage = <h2>Sending completed</h2>
+    } else {
+      progressMessage = <h2>Progress</h2>
     }
-    if (isComplete) {
-      return <h2>Sending completed</h2>
-    }
-    return <h2>Progress</h2>
+
+    return <div className={styles.progressMessage}>{progressMessage}</div>
   }
 
   return (
@@ -90,7 +93,7 @@ const ProgressDetails = ({
         </table>
 
         <div className={styles.progressTitle}>
-          {renderStateMessage()}
+          {renderProgressTitle()}
           {renderButton()}
         </div>
         <ProgressBar
