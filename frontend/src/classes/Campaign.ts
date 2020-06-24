@@ -7,6 +7,7 @@ export enum Status {
   Draft = 'draft',
   Sending = 'sending',
   Sent = 'sent',
+  Halted = 'halted',
 }
 
 export const channelIcons = {
@@ -29,7 +30,9 @@ export class Campaign {
     this.type = input['type']
     this.createdAt = input['created_at']
     this.sentAt = input['sent_at']
-    this.status = this.getStatus(input['job_queue'])
+    this.status = input['halted']
+      ? Status.Halted
+      : this.getStatus(input['job_queue'])
     this.isCsvProcessing = input['is_csv_processing']
   }
 
