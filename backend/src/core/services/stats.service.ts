@@ -1,5 +1,5 @@
 import { fn, cast, Transaction } from 'sequelize'
-import { Statistic, JobQueue } from '@core/models'
+import { Statistic, JobQueue, Campaign } from '@core/models'
 import { CampaignStats, CampaignStatsCount } from '@core/interfaces'
 
 /**
@@ -99,7 +99,16 @@ const getCurrentStats = async (
   opsTable: any
 ): Promise<CampaignStats> => {
   // Get job from job_queue table
-  const job = await JobQueue.findOne({ where: { campaignId } })
+  const job = await JobQueue.findOne({
+    where: { campaignId },
+    include: [
+      {
+        model: Campaign,
+        attributes: ['halted'],
+      },
+    ],
+  })
+
   if (job == null)
     throw new Error('Unable to find campaign in job queue table.')
 
@@ -121,10 +130,11 @@ const getCurrentStats = async (
       // this is needed when invalid might appear in ops table, e.g. telegram immediate bounce errors
       invalid: opsStats.invalid + archivedStats.invalid,
       status: job.status,
+      halted: job.campaign.halted,
     }
   }
   // else, return archived stats
-  return { ...archivedStats, status: job.status }
+  return { ...archivedStats, status: job.status, halted: job.campaign.halted }
 }
 
 /*

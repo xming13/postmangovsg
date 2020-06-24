@@ -49,6 +49,7 @@ export interface CampaignDetails {
 
 export interface CampaignStats extends CampaignStatsCount {
   status: string
+  halted: boolean
 }
 
 export interface CampaignStatsCount {
@@ -57,6 +58,7 @@ export interface CampaignStatsCount {
   sent: number
   invalid: number
 }
+
 /**
  * @swagger
  *  components:
